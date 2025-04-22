@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
+import ScheduleSchema from "./models/schedule";
 
 // Load environment variables
 dotenv.config();
@@ -73,11 +74,29 @@ function setupSocketHandlers(io) {
     console.log(`User connected: ${socket.id}`);
 
     socket.on("chat", async (data) => {
-      socket.broadcast.emit("chat", {
-        message: data.message,
-        sender: socket.id,
-        timestamp: new Date().toISOString(),
-      });
+      if (data.userId) {
+        socket.emit("chat-message", {
+          userId: data.userId,
+          message: data.message,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    socket.on("schedule", async (data) => {
+      try {
+        const response = await ScheduleSchema.create(data);
+        socket.emit("schedule-response", {
+          success: true,
+          data: response,
+        });
+      } catch (error) {
+        console.error("Error creating schedule:", error);
+        socket.emit("schedule-response", {
+          success: false,
+          error: "Failed to create schedule",
+        });
+      }
     });
 
     // Handle disconnection

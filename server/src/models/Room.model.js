@@ -17,6 +17,24 @@ const roomSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    participants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    messages: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+      },
+    ],
+    schedules: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Schedule",
+      },
+    ],
   },
   { timestamps: true }
 );
